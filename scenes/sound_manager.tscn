@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://28xtloiewt1h"]
+
+[ext_resource type="Script" path="res://sound_manager.gd" id="1_w1n3o"]
+[ext_resource type="AudioStream" uid="uid://br06ujcn5qvbc" path="res://assets/camera-shutter.mp3" id="2_5e4r7"]
+
+[node name="SoundManager" type="Node2D"]
+script = ExtResource("1_w1n3o")
+
+[node name="CameraSound" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_5e4r7")
