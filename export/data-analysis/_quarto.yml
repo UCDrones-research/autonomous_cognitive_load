@@ -6,9 +6,9 @@ website:
   navbar:
     background: primary
     left:
-      - text: "Overview"
+      - text: "Experiment Results"
         href: index.qmd
-      - text: "Simulation Results"
+      - text: "Try Simulation"
         href: simulation/simulation.html
 
 format:
