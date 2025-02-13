@@ -6,8 +6,6 @@ website:
   navbar:
     background: primary
     left:
-      - text: "Experiment Results"
-        href: index.qmd
       - text: "Try Simulation"
         href: simulation/simulation.html
 
