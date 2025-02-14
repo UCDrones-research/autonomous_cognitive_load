@@ -2,10 +2,12 @@ project:
   type: website
 
 website:
-  title: "Experiment Results"
+  title: "Planned vs Reactive Autonomy Error Detection"
   navbar:
     background: primary
     left:
+      - text: "Experiment Results"
+        href: analysis.qmd
       - text: "Try Simulation"
         href: simulation/simulation.html
 
@@ -13,6 +15,5 @@ format:
   html:
     theme: cosmo
     css: styles.css
-    toc: true
     code-fold: true
-    page-layout: custom
+    page-layout: article

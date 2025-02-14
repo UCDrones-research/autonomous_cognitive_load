@@ -1,0 +1,793 @@
+---
+title: "Planned vs Reactive Experiment Results"
+jupyter: python3
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    code-fold: true
+    page-layout: full
+    fig-width: 12
+    fig-height: 8
+---
+
+```{python}
+import json
+import glob
+import os
+import pandas as pd
+import numpy as np
+from datetime import datetime, date
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+AGE_GROUPS = {
+    0: "Unknown",
+    1: "12-17",
+    2: "18-24",
+    3: "25-34",
+    4: "35-44",
+    5: "45-54",
+    6: "55-64",
+    7: "65+"
+}
+
+
+def get_age_label(age_code):
+    """Convert age code to descriptive label"""
+    return AGE_GROUPS.get(age_code, f"Unknown({age_code})")
+
+
+def process_json_files(file_pattern='*.json'):
+    """
+    Process multiple JSON files and combine their data into a DataFrame.
+    """
+    all_error_data = []
+    all_reactive_data = []
+    false_positives_data = []
+    
+    # Construct the path to the data directory
+    data_dir = os.path.join('test_data', file_pattern)
+    # data_dir = os.path.join('data', file_pattern)
+    
+    counter = 0
+
+    for filename in glob.glob(data_dir):
+        counter += 1
+        try:
+            with open(filename, 'r') as f:
+                # Read the file content
+                file_content = f.read()
+                
+                # Split the content into separate JSON objects
+                json_objects = []
+                current_json = ""
+                depth = 0
+                
+                for char in file_content:
+                    current_json += char
+                    if char == '{':
+                        depth += 1
+                    elif char == '}':
+                        depth -= 1
+                        if depth == 0 and current_json.strip():
+                            try:
+                                json_obj = json.loads(current_json.strip())
+                                json_objects.append(json_obj)
+                                current_json = ""
+                            except json.JSONDecodeError:
+                                pass
+                
+                # Process the main data object
+                main_data = next((obj for obj in json_objects if 'results' in obj), None)
+                if main_data:
+                    # Extract user info
+                    user_info = main_data.get('userinfo', {})
+                    user_age = user_info.get('age', 0)
+                    
+                    # Handle reactive results if present
+                    if 'reactive_results' in main_data:
+                        reactive_row = {
+                            'filename': filename,
+                            'age': user_age,
+                            **main_data.get('reactive_results', {}).get('ObjectsMissed', {})
+                        }
+                        all_reactive_data.append(reactive_row)
+                    
+                    # Process main results
+                    results = main_data.get('results', {})
+                    for error_type, error_data in results.items():
+                        for instance_num, instance_data in error_data.items():
+                            row = {
+                                'error_type': error_type,
+                                'instance': int(instance_num),
+                                'missed': instance_data['missed'],
+                                'time': instance_data['time'],
+                                'filename': filename,
+                                'age': user_age
+                            }
+                            all_error_data.append(row)
+                
+                # Process false positives data
+                fp_obj = next((obj for obj in json_objects if 'FalsePositives' in obj), None)
+                if fp_obj:
+                    fp_data = fp_obj.get('FalsePositives', {})
+                    for error_type, count in fp_data.items():
+                        false_positives_data.append({
+                            'error_type': error_type,
+                            'count': count,
+                            'filename': filename,
+                            'age': user_age
+                        })
+        except Exception as e:
+            print(f"Error processing file {filename}: {e}")
+            continue
+
+    # Create DataFrames with default columns even if empty
+    error_df = pd.DataFrame(all_error_data) if all_error_data else pd.DataFrame(
+        columns=['error_type', 'instance', 'missed', 'time', 'filename', 'age'])
+    reactive_df = pd.DataFrame(all_reactive_data) if all_reactive_data else pd.DataFrame(
+        columns=['filename', 'age', 'rows', 'structures'])
+    false_positives_df = pd.DataFrame(false_positives_data) if false_positives_data else pd.DataFrame(
+        columns=['error_type', 'count', 'filename', 'age'])
+    
+    return error_df, reactive_df, false_positives_df, counter
+
+
+def create_interactive_visualization(error_df, false_positives_df, type):
+    """
+    Create interactive Plotly visualization with stacked bar plots for each error type.
+    """
+    error_types = ['CameraError', 'FlightError', 'HardwareError']
+    age_groups = sorted(error_df['age'].unique())
+    colors = {'caught': 'lightgreen', 'missed': 'lightcoral', 'false_positives': 'lightskyblue'}
+    
+    # Create subplots with consistent width
+    fig = make_subplots(
+        rows=1, 
+        cols=3, 
+        subplot_titles=error_types,
+        horizontal_spacing=0.1
+    )
+    
+    # Keep track of trace indices
+    total_traces = []
+    age_group_traces = []
+    
+    # Create base traces (aggregated view)
+    for i, error_type in enumerate(error_types, 1):
+        error_data = error_df[error_df['error_type'] == error_type]
+        fp_data = false_positives_df[false_positives_df['error_type'] == error_type]
+        
+        # Calculate aggregated values
+        total_caught = (~error_data['missed']).sum()
+        total_missed = error_data['missed'].sum()
+        total_fp = fp_data['count'].sum()
+        
+        # Add traces for aggregated view
+        fig.add_trace(
+            go.Bar(
+                x=['All Ages'],
+                y=[total_caught],
+                name='Caught' if i == 1 else None,
+                marker_color=colors['caught'],
+                showlegend=i == 1,
+                legendgroup='caught',
+                hovertemplate='Caught: %{y}<br>Error Type: ' + error_type + '<extra></extra>',
+            ),
+            row=1, col=i
+        )
+        total_traces.append(len(fig.data) - 1)
+        
+        fig.add_trace(
+            go.Bar(
+                x=['All Ages'],
+                y=[total_missed],
+                name='Missed' if i == 1 else None,
+                marker_color=colors['missed'],
+                showlegend=i == 1,
+                legendgroup='missed',
+                hovertemplate='Missed: %{y}<br>Error Type: ' + error_type + '<extra></extra>',
+            ),
+            row=1, col=i
+        )
+        total_traces.append(len(fig.data) - 1)
+        
+        fig.add_trace(
+            go.Bar(
+                x=['All Ages'],
+                y=[total_fp],
+                name='False Positives' if i == 1 else None,
+                marker_color=colors['false_positives'],
+                showlegend=i == 1,
+                legendgroup='false_positives',
+                hovertemplate='False Positives: %{y}<br>Error Type: ' + error_type + '<extra></extra>',
+            ),
+            row=1, col=i
+        )
+        total_traces.append(len(fig.data) - 1)
+        
+        # Add age group traces (initially hidden)
+        for age_code in age_groups:
+            age_label = get_age_label(age_code)
+            age_data = error_data[error_data['age'] == age_code]
+            age_fp = fp_data[fp_data['age'] == age_code]
+            
+            # Calculate values
+            caught = (~age_data['missed']).sum()
+            missed = age_data['missed'].sum()
+            fp_count = age_fp['count'].sum() if not age_fp.empty else 0
+            
+            fig.add_trace(
+                go.Bar(
+                    x=[age_label],
+                    y=[caught],
+                    name='Caught',
+                    marker_color=colors['caught'],
+                    showlegend=False,
+                    visible=False,
+                    legendgroup='caught',
+                    hovertemplate=f'{age_label}<br>Caught: %{{y}}<extra></extra>',
+                ),
+                row=1, col=i
+            )
+            age_group_traces.append(len(fig.data) - 1)
+            
+            fig.add_trace(
+                go.Bar(
+                    x=[age_label],
+                    y=[missed],
+                    name='Missed',
+                    marker_color=colors['missed'],
+                    showlegend=False,
+                    visible=False,
+                    legendgroup='missed',
+                    hovertemplate=f'{age_label}<br>Missed: %{{y}}<extra></extra>',
+                ),
+                row=1, col=i
+            )
+            age_group_traces.append(len(fig.data) - 1)
+            
+            fig.add_trace(
+                go.Bar(
+                    x=[age_label],
+                    y=[fp_count],
+                    name='False Positives',
+                    marker_color=colors['false_positives'],
+                    showlegend=False,
+                    visible=False,
+                    legendgroup='false_positives',
+                    hovertemplate=f'{age_label}<br>False Positives: %{{y}}<extra></extra>',
+                ),
+                row=1, col=i
+            )
+            age_group_traces.append(len(fig.data) - 1)
+
+    # Add buttons for age group selection
+    buttons = [
+        dict(
+            args=[{
+                'visible': [i in total_traces for i in range(len(fig.data))]
+            }],
+            label="All Ages",
+            method="restyle"
+        )
+    ]
+    
+    # Add button for each age group
+    for idx, age_code in enumerate(age_groups):
+        age_label = get_age_label(age_code)
+        age_visibility = []
+        for i in range(len(fig.data)):
+            subplot_idx = i // (3 * (len(age_groups) + 1))
+            is_age_trace = (i - (subplot_idx * 3 * (len(age_groups) + 1)) - 3) // 3 == idx
+            age_visibility.append(is_age_trace)
+        
+        buttons.append(dict(
+            args=[{'visible': age_visibility}],
+            label=age_label,
+            method="restyle"
+        ))
+
+    # Update layout
+    fig.update_layout(
+        barmode='stack',
+        title_text=f"{type.capitalize()} Mode: Error Distribution by Type and Age Group",
+        height=500,
+        width=1000,
+        showlegend=True,
+        legend_title_text="Error Categories",
+        hovermode='x unified',
+        margin=dict(l=50, r=120, t=130, b=50),
+        updatemenus=[dict(
+            buttons=buttons,
+            direction="down",
+            showactive=True,
+            x=1.2,
+            xanchor="right",
+            y=1.1,
+            yanchor="bottom",
+            bgcolor='white',
+            bordercolor='darkgray',
+            font=dict(size=12),
+            pad=dict(r=10, t=10)
+        )],
+        annotations=[
+            dict(
+                text=title,
+                x=x,
+                y=1.025,
+                xref="paper",
+                yref="paper",
+                showarrow=False,
+                font=dict(size=14)
+            )
+            for title, x in zip(error_types, [0.13, 0.5, 0.87])
+        ]
+    )
+
+    # Update axes labels
+    fig.update_yaxes(title_text="Count", row=1, col=1)
+    
+    return fig
+
+
+def create_interactive_visualization(error_df, false_positives_df, type):
+    """
+    Create interactive Plotly visualization with stacked bar plots for each error type.
+    """
+    error_types = ['CameraError', 'FlightError', 'HardwareError']
+    age_groups = sorted(error_df['age'].unique())
+    colors = {'caught': 'lightgreen', 'missed': 'lightcoral', 'false_positives': 'lightskyblue'}
+    
+    # Create subplots with consistent width
+    fig = make_subplots(
+        rows=1, 
+        cols=3, 
+        subplot_titles=error_types,
+        horizontal_spacing=0.1
+    )
+    
+    # Keep track of trace indices
+    total_traces = []
+    age_group_traces = []
+    
+    # Create base traces (aggregated view)
+    for i, error_type in enumerate(error_types, 1):
+        error_data = error_df[error_df['error_type'] == error_type]
+        fp_data = false_positives_df[false_positives_df['error_type'] == error_type]
+        
+        # Calculate aggregated values
+        total_caught = (~error_data['missed']).sum()
+        total_missed = error_data['missed'].sum()
+        total_fp = fp_data['count'].sum()
+        
+        # Add traces for aggregated view
+        fig.add_trace(
+            go.Bar(
+                x=['All Ages'],
+                y=[total_caught],
+                name='Caught' if i == 1 else None,
+                marker_color=colors['caught'],
+                showlegend=i == 1,
+                legendgroup='caught',
+                hovertemplate='Caught: %{y}<br>Error Type: ' + error_type + '<extra></extra>',
+            ),
+            row=1, col=i
+        )
+        total_traces.append(len(fig.data) - 1)
+        
+        fig.add_trace(
+            go.Bar(
+                x=['All Ages'],
+                y=[total_missed],
+                name='Missed' if i == 1 else None,
+                marker_color=colors['missed'],
+                showlegend=i == 1,
+                legendgroup='missed',
+                hovertemplate='Missed: %{y}<br>Error Type: ' + error_type + '<extra></extra>',
+            ),
+            row=1, col=i
+        )
+        total_traces.append(len(fig.data) - 1)
+        
+        fig.add_trace(
+            go.Bar(
+                x=['All Ages'],
+                y=[total_fp],
+                name='False Positives' if i == 1 else None,
+                marker_color=colors['false_positives'],
+                showlegend=i == 1,
+                legendgroup='false_positives',
+                hovertemplate='False Positives: %{y}<br>Error Type: ' + error_type + '<extra></extra>',
+            ),
+            row=1, col=i
+        )
+        total_traces.append(len(fig.data) - 1)
+        
+        # Add age group traces (initially hidden)
+        for age_code in age_groups:
+            age_label = get_age_label(age_code)
+            age_data = error_data[error_data['age'] == age_code]
+            age_fp = fp_data[fp_data['age'] == age_code]
+            
+            # Calculate values
+            caught = (~age_data['missed']).sum()
+            missed = age_data['missed'].sum()
+            fp_count = age_fp['count'].sum() if not age_fp.empty else 0
+            
+            fig.add_trace(
+                go.Bar(
+                    x=[age_label],
+                    y=[caught],
+                    name='Caught',
+                    marker_color=colors['caught'],
+                    showlegend=False,
+                    visible=False,
+                    legendgroup='caught',
+                    hovertemplate=f'{age_label}<br>Caught: %{{y}}<extra></extra>',
+                ),
+                row=1, col=i
+            )
+            age_group_traces.append(len(fig.data) - 1)
+            
+            fig.add_trace(
+                go.Bar(
+                    x=[age_label],
+                    y=[missed],
+                    name='Missed',
+                    marker_color=colors['missed'],
+                    showlegend=False,
+                    visible=False,
+                    legendgroup='missed',
+                    hovertemplate=f'{age_label}<br>Missed: %{{y}}<extra></extra>',
+                ),
+                row=1, col=i
+            )
+            age_group_traces.append(len(fig.data) - 1)
+            
+            fig.add_trace(
+                go.Bar(
+                    x=[age_label],
+                    y=[fp_count],
+                    name='False Positives',
+                    marker_color=colors['false_positives'],
+                    showlegend=False,
+                    visible=False,
+                    legendgroup='false_positives',
+                    hovertemplate=f'{age_label}<br>False Positives: %{{y}}<extra></extra>',
+                ),
+                row=1, col=i
+            )
+            age_group_traces.append(len(fig.data) - 1)
+
+    # Add buttons for age group selection
+    buttons = [
+        dict(
+            args=[{
+                'visible': [i in total_traces for i in range(len(fig.data))]
+            }],
+            label="All Ages",
+            method="restyle"
+        )
+    ]
+    
+    # Add button for each age group
+    for idx, age_code in enumerate(age_groups):
+        age_label = get_age_label(age_code)
+        age_visibility = []
+        for i in range(len(fig.data)):
+            subplot_idx = i // (3 * (len(age_groups) + 1))
+            is_age_trace = (i - (subplot_idx * 3 * (len(age_groups) + 1)) - 3) // 3 == idx
+            age_visibility.append(is_age_trace)
+        
+        buttons.append(dict(
+            args=[{'visible': age_visibility}],
+            label=age_label,
+            method="restyle"
+        ))
+
+    # Update layout
+    fig.update_layout(
+        barmode='stack',
+        title_text=f"{type.capitalize()} Mode: Error Distribution by Type and Age Group",
+        height=500,
+        width=1000,
+        showlegend=True,
+        legend_title_text="Error Categories",
+        hovermode='x unified',
+        margin=dict(l=50, r=120, t=130, b=50),
+        updatemenus=[dict(
+            buttons=buttons,
+            direction="down",
+            showactive=True,
+            x=1.2,
+            xanchor="right",
+            y=1.1,
+            yanchor="bottom",
+            bgcolor='white',
+            bordercolor='darkgray',
+            font=dict(size=12),
+            pad=dict(r=10, t=10)
+        )],
+        annotations=[
+            dict(
+                text=title,
+                x=x,
+                y=1.025,
+                xref="paper",
+                yref="paper",
+                showarrow=False,
+                font=dict(size=14)
+            )
+            for title, x in zip(error_types, [0.13, 0.5, 0.87])
+        ]
+    )
+
+    # Update axes labels
+    fig.update_yaxes(title_text="Count", row=1, col=1)
+    
+    return fig
+
+
+def create_heatmap(error_df, type):
+    """
+    Create Plotly heatmap for average error times with YlOrRd color scale and zero minimum.
+    Uses zero values only when no non-zero values exist for a particular 
+    instance/error type combination.
+    """
+    all_data_matrix = pd.pivot_table(
+        error_df,
+        values='time',
+        index='instance',
+        columns='error_type',
+        aggfunc=lambda x: list(x)
+    )
+    
+    # Create matrix for final values
+    time_matrix = pd.DataFrame(
+        index=all_data_matrix.index,
+        columns=all_data_matrix.columns,
+        dtype=float
+    )
+    
+    # Fill in averages, using non-zero values when available, zero otherwise
+    for idx in all_data_matrix.index:
+        for col in all_data_matrix.columns:
+            values = all_data_matrix.loc[idx, col]
+            non_zero_values = [v for v in values if v > 0]
+            if non_zero_values:
+                time_matrix.loc[idx, col] = np.mean(non_zero_values)
+            else:
+                # If only zeros exist for this cell, use 0
+                time_matrix.loc[idx, col] = 0
+    
+    # print(f"\n{type} Mode - Time Matrix Statistics:")
+    # print(f"Min value: {time_matrix.values.min()}")
+    # print(f"Max value: {time_matrix.values.max()}")
+    
+    hover_text = np.empty(time_matrix.shape, dtype=object)
+    for i in range(time_matrix.shape[0]):
+        for j in range(time_matrix.shape[1]):
+            values = all_data_matrix.iloc[i, j]
+            non_zero_count = sum(1 for v in values if v > 0)
+            total_count = len(values)
+            if non_zero_count > 0:
+                hover_text[i, j] = f"Instance: {time_matrix.index[i]}<br>" \
+                                 f"Error Type: {time_matrix.columns[j]}<br>" \
+                                 f"Avg Time: {time_matrix.iloc[i, j]:.2f}<br>" \
+                                 f"(from {non_zero_count} non-zero values)"
+            else:
+                hover_text[i, j] = f"Instance: {time_matrix.index[i]}<br>" \
+                                 f"Error Type: {time_matrix.columns[j]}<br>" \
+                                 f"Time: 0 (all {total_count} values were zero)"
+    
+    fig = go.Figure(data=go.Heatmap(
+        z=time_matrix.values,
+        x=time_matrix.columns,
+        y=time_matrix.index,
+        colorscale='YlOrRd',
+        showscale=True,
+        text=np.round(time_matrix.values, 2),
+        texttemplate='%{text}',
+        textfont={'size': 10},
+        hovertemplate='%{customdata}<extra></extra>',
+        customdata=hover_text,
+        zmin=0,  # Set minimum value to 0
+        zmid=time_matrix.values.max() / 2 if time_matrix.values.max() > 0 else 0.5,  # Set midpoint
+        zauto=False  # Disable automatic range
+    ))
+    
+    fig.update_layout(
+        title=f'{type.capitalize()} Mode: Average Error Resolution Time by Instance<br><sub>*Using non-zero values where available; zero values shown where no non-zero times exist</sub>',
+        xaxis_title='Error Type',
+        yaxis_title='Instance',
+        height=500,
+        coloraxis_colorbar_title='Time'
+    )
+
+    fig = go.Figure(data=go.Heatmap(
+        z=time_matrix.values,
+        x=time_matrix.columns,
+        y=time_matrix.index,
+        colorscale='YlOrRd',
+        showscale=True,
+        text=np.round(time_matrix.values, 2),
+        texttemplate='%{text}',
+        textfont={'size': 10},
+        hovertemplate='%{customdata}<extra></extra>',
+        customdata=hover_text,
+        zmin=0,
+        zmid=time_matrix.values.max() / 2 if time_matrix.values.max() > 0 else 0.5,
+        zauto=False
+    ))
+    
+    fig.update_layout(
+        title=f'{type.capitalize()} Mode: Average Error Resolution Time by Instance<br><sub>Using non-zero values where available; zero values shown where no non-zero times exist</sub>',
+        xaxis_title='Error Type',
+        yaxis_title='Instance',
+        height=500,
+        width=1000,  # Set explicit width
+        margin=dict(l=50, r=50, t=100, b=50)
+    )
+    
+    return fig
+
+
+def create_response_time_histogram(planned_df, reactive_df):
+    """
+    Create a combined histogram and line chart comparing planned and reactive response times.
+    """
+    # Calculate average response times for non-zero values for both modes
+    error_types = ['CameraError', 'FlightError', 'HardwareError']
+    
+    # Process planned data
+    planned_times = {}
+    for error_type in error_types:
+        times = planned_df[planned_df['error_type'] == error_type]['time']
+        non_zero_times = times[times > 0]
+        planned_times[error_type] = non_zero_times.mean() if len(non_zero_times) > 0 else 0
+
+    # Process reactive data
+    reactive_times = {}
+    for error_type in error_types:
+        times = reactive_df[reactive_df['error_type'] == error_type]['time']
+        non_zero_times = times[times > 0]
+        reactive_times[error_type] = non_zero_times.mean() if len(non_zero_times) > 0 else 0
+
+    # Create figure with secondary y-axis
+    fig = go.Figure()
+
+    # Add bars for planned mode
+    fig.add_trace(
+        go.Bar(
+            name='Planned',
+            x=error_types,
+            y=list(planned_times.values()),
+            text=np.round(list(planned_times.values()), 3),
+            textposition='auto',
+            marker_color='rgba(158,202,225,0.6)',
+            hovertemplate='Planned Mode<br>%{x}: %{y:.3f}s<extra></extra>'
+        )
+    )
+
+    # Add bars for reactive mode
+    fig.add_trace(
+        go.Bar(
+            name='Reactive',
+            x=error_types,
+            y=list(reactive_times.values()),
+            text=np.round(list(reactive_times.values()), 3),
+            textposition='auto',
+            marker_color='rgba(94,158,217,0.6)',
+            hovertemplate='Reactive Mode<br>%{x}: %{y:.3f}s<extra></extra>'
+        )
+    )
+
+    # Add lines connecting the points
+    fig.add_trace(
+        go.Scatter(
+            name='Planned (trend)',
+            x=error_types,
+            y=list(planned_times.values()),
+            mode='lines+markers',
+            line=dict(color='rgb(58,102,171)', width=2),
+            marker=dict(size=8),
+            hovertemplate='Planned Mode<br>%{x}: %{y:.3f}s<extra></extra>'
+        )
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            name='Reactive (trend)',
+            x=error_types,
+            y=list(reactive_times.values()),
+            mode='lines+markers',
+            line=dict(color='rgb(137,59,59)', width=2),
+            marker=dict(size=8),
+            hovertemplate='Reactive Mode<br>%{x}: %{y:.3f}s<extra></extra>'
+        )
+    )
+
+    # Update layout
+    fig.update_layout(
+        title='Average Response Time Comparison: Planned vs Reactive',
+        xaxis_title='Error Type',
+        yaxis_title='Average Response Time (seconds)',
+        height=500,
+        width=1000,
+        margin=dict(l=50, r=50, t=100, b=50),
+        barmode='group',
+        hovermode='x unified',
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+    
+    return fig
+
+
+def planned_plot():
+    today = datetime.strftime(datetime.now(), '%d-%m-%Y')
+    error_df, planned_df, false_positives_df, counter = process_json_files('*-planned.json')
+    print(f"Found {counter} data points as of {today}.")
+    
+    # Create and display interactive distribution plot
+    dist_fig = create_interactive_visualization(error_df, false_positives_df, 'planned')
+    dist_fig.show()
+    
+    # Create and display heatmap
+    heatmap_fig = create_heatmap(error_df, 'planned')
+    heatmap_fig.show()
+    
+
+def reactive_plot():
+    today = datetime.strftime(datetime.now(), '%d-%m-%Y')
+    error_df, reactive_df, false_positives_df, counter = process_json_files('*-reactive.json')
+    print(f"Found {counter} data points as of {today}.")
+    
+    # Create and display interactive distribution plot
+    dist_fig = create_interactive_visualization(error_df, false_positives_df, 'reactive')
+    dist_fig.show()
+    
+    # Create and display heatmap
+    heatmap_fig = create_heatmap(error_df, 'reactive')
+    heatmap_fig.show()
+
+
+def create_histogram():
+    """
+    Create visualization with both planned and reactive data.
+    """
+    today = datetime.strftime(datetime.now(), '%d-%m-%Y')
+    
+    # Process planned data
+    planned_error_df, planned_df, planned_fp_df, planned_counter = process_json_files('*-planned.json')
+    print(f"Found {planned_counter} planned mode data points as of {today}.")
+    
+    # Process reactive data
+    reactive_error_df, reactive_df, reactive_fp_df, reactive_counter = process_json_files('*-reactive.json')
+    print(f"Found {reactive_counter} reactive mode data points as of {today}.")
+       
+    # Create combined response time visualization
+    response_time_fig = create_response_time_histogram(planned_error_df, reactive_error_df)
+    response_time_fig.show()
+```
+
+::: {.panel-tabset}
+## Planned
+```{python}
+planned_plot()
+create_histogram()
+```
+
+## Reactive
+```{python}
+reactive_plot()
+create_histogram()
+```
+:::

@@ -1,0 +1,82 @@
+/* Main content styling */
+body {
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+/* Header styling */
+h1, h2, h3, h4, h5, h6 {
+  color: #2c3e50;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Abstract styling */
+.abstract {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-left: 4px solid #0056b3;
+  margin: 2rem 0;
+}
+
+/* Keywords styling */
+.keywords {
+  margin-top: 1rem;
+  font-style: italic;
+  color: #666;
+}
+
+/* Figure and table captions */
+.figure-caption, .table-caption {
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+/* Code chunks */
+.cell {
+  margin: 1rem 0;
+}
+
+/* Callouts */
+.callout {
+  margin: 1.5rem 0;
+  border-radius: 0.25rem;
+}
+
+/* References */
+#refs {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #eee;
+}
+
+/* TOC styling */
+#TOC {
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  body {
+      font-size: 1rem;
+  }
+  
+  .abstract {
+      padding: 1rem;
+  }
+}
+
+/* Print-friendly */
+@media print {
+  body {
+      font-size: 12pt;
+  }
+  
+  #TOC {
+      display: none;
+  }
+}
