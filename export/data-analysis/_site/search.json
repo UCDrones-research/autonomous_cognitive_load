@@ -4,7 +4,7 @@
     "href": "index.html#background",
     "title": "Research Summary",
     "section": "2.1 Background",
-    "text": "2.1 Background\nError detection and response times are crucial components in automated operations. This study compares two fundamental approaches:\n\nPlanned Detection: Systematic monitoring, preventive error checking, and response-based error handling triggered by system anomalies in a visible preplanned flight path.\nReactive Detection: Systematic monitoring, preventive error checking, and response-based error handling triggered by system anomalies in a non-visible autonomous flight path."
+    "text": "2.1 Background\nError detection and response times are crucial components in automated operations. This study compares two fundamental approaches:\n\nPlanned Autonomy: Systematic monitoring, preventive error checking, and response-based error handling triggered by system anomalies in a visible preplanned flight path.\nReactive Autonomy: Systematic monitoring, preventive error checking, and response-based error handling triggered by system anomalies in a non-visible autonomous flight path."
   },
   {
     "objectID": "index.html#research-question",
@@ -53,7 +53,7 @@
     "href": "index.html#research-questions",
     "title": "Research Summary",
     "section": "2.2 Research Questions",
-    "text": "2.2 Research Questions\n\nHow do response times differ between planned and reactive flight path error detection scenarios?\nWhat impact does user age have on error detection effectiveness?\nWhich error types are most commonly handled in each scenario?"
+    "text": "2.2 Research Questions\n\nHow do response times differ between planned and reactive autonomy error detection scenarios?\nWhat impact does user age have on error detection effectiveness?\nWhich error types are most commonly handled in each scenario?"
   },
   {
     "objectID": "index.html#analysis-framework",
@@ -74,7 +74,7 @@
     "href": "index.html",
     "title": "Research Summary",
     "section": "",
-    "text": "This research investigates the effectiveness of planned versus reactive flight paths and their effects on error detection results in automated drone systems. We analyze response times, detection accuracy, and age-related performance variations across different error types including camera, flight, and hardware errors."
+    "text": "This research investigates the impact of planned versus reactive autonomy and their effects on error detection results in automated drone systems. We analyze response times, detection accuracy, and age-related performance variations across different error types including camera, flight, and hardware errors."
   },
   {
     "objectID": "analysis.html",
