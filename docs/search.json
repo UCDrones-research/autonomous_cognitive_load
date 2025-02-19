@@ -2,7 +2,7 @@
   {
     "objectID": "index.html#background",
     "href": "index.html#background",
-    "title": "Error Detection Research Summary",
+    "title": "Research Summary",
     "section": "2.1 Background",
     "text": "2.1 Background\nError detection and response systems are crucial components in automated operations. This study compares two fundamental approaches:\n\nPlanned Detection: Systematic monitoring and preventive error checking\nReactive Detection: Response-based error handling triggered by system anomalies"
   },
@@ -16,7 +16,7 @@
   {
     "objectID": "index.html#data-collection",
     "href": "index.html#data-collection",
-    "title": "Error Detection Research Summary",
+    "title": "Research Summary",
     "section": "3.1 Data Collection",
     "text": "3.1 Data Collection\nData was collected through simulated error scenarios across multiple instances and error types. Participants from various age groups interacted with both planned and reactive detection systems."
   },
@@ -44,35 +44,35 @@
   {
     "objectID": "index.html#future-research",
     "href": "index.html#future-research",
-    "title": "Error Detection Research Summary",
+    "title": "Research Summary",
     "section": "5.2 Future Research",
     "text": "5.2 Future Research\nFurther investigation could explore:\n\nLong-term effectiveness of each approach\nIntegration of hybrid detection methods\nOptimization strategies for specific error types"
   },
   {
     "objectID": "index.html#research-questions",
     "href": "index.html#research-questions",
-    "title": "Error Detection Research Summary",
+    "title": "Research Summary",
     "section": "2.2 Research Questions",
     "text": "2.2 Research Questions\n\nHow do response times differ between planned and reactive error detection approaches?\nWhat impact does user age have on error detection effectiveness?\nWhich error types are most effectively handled by each approach?"
   },
   {
     "objectID": "index.html#analysis-framework",
     "href": "index.html#analysis-framework",
-    "title": "Error Detection Research Summary",
+    "title": "Research Summary",
     "section": "3.2 Analysis Framework",
     "text": "3.2 Analysis Framework\nOur analysis focuses on three key metrics:\n\nError detection rates (caught vs. missed)\nFalse positive occurrences\nResponse time distributions\n\nFor detailed visualizations and analysis of the results, please see the Experiment Results section."
   },
   {
     "objectID": "index.html#implications",
     "href": "index.html#implications",
-    "title": "Error Detection Research Summary",
+    "title": "Research Summary",
     "section": "5.1 Implications",
     "text": "5.1 Implications\nThe findings suggest important considerations for implementing error detection systems:\n\n[Key implication 1]\n[Key implication 2]\n[Key implication 3]"
   },
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Error Detection Research Summary",
+    "title": "Research Summary",
     "section": "",
     "text": "This research investigates the effectiveness of planned versus reactive error detection approaches in automated systems. We analyze response times, detection accuracy, and age-related performance variations across different error types including camera, flight, and hardware errors."
   },

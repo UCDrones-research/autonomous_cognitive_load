@@ -1,5 +1,5 @@
 ---
-title: "Error Detection Research Summary"
+title: "Research Summary"
 author:
   - name: "Jeffrey Winters"
     affiliation: "University of California, Merced"

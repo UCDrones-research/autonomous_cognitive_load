@@ -47,7 +47,7 @@ def process_json_files(file_pattern='*.json'):
     false_positives_data = []
     
     # Construct the path to the data directory
-    data_dir = os.path.join('test_data', file_pattern)
+    data_dir = os.path.join('data', file_pattern)
     # data_dir = os.path.join('data', file_pattern)
     
     counter = 0

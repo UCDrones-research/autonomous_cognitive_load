@@ -1,10 +1,14 @@
 ---
 title: "Planned vs Reactive Experiment Results"
+jupyter: python3
 format:
   html:
+    theme: cosmo
+    css: styles.css
     code-fold: true
-    page-layout: custom
-jupyter: python3
+    page-layout: full
+    fig-width: 12
+    fig-height: 8
 ---
 
 ```{python}
