@@ -28,22 +28,22 @@ from datetime import datetime
 
 # Abstract
 
-This research investigates the effectiveness of planned versus reactive error detection approaches in automated systems. We analyze response times, detection accuracy, and age-related performance variations across different error types including camera, flight, and hardware errors.
+This research investigates the effectiveness of planned versus reactive flight paths and their effects on error detection results in automated drone systems. We analyze response times, detection accuracy, and age-related performance variations across different error types including camera, flight, and hardware errors.
 
 # Introduction
 
 ## Background
 
-Error detection and response systems are crucial components in automated operations. This study compares two fundamental approaches:
+Error detection and response times are crucial components in automated operations. This study compares two fundamental approaches:
 
-- **Planned Detection**: Systematic monitoring and preventive error checking
-- **Reactive Detection**: Response-based error handling triggered by system anomalies
+- **Planned Detection**: Systematic monitoring, preventive error checking, and response-based error handling triggered by system anomalies in a visible preplanned flight path.
+- **Reactive Detection**: Systematic monitoring, preventive error checking, and response-based error handling triggered by system anomalies in a non-visible autonomous flight path.
 
 ## Research Questions
 
-1. How do response times differ between planned and reactive error detection approaches?
+1. How do response times differ between planned and reactive flight path error detection scenarios?
 2. What impact does user age have on error detection effectiveness?
-3. Which error types are most effectively handled by each approach?
+3. Which error types are most commonly handled in each scenario?
 
 # Methods
 
@@ -58,6 +58,7 @@ Our analysis focuses on three key metrics:
 1. Error detection rates (caught vs. missed)
 2. False positive occurrences
 3. Response time distributions
+4. Comparison of average response time
 
 For detailed visualizations and analysis of the results, please see the [Experiment Results](analysis.qmd) section.
 
