@@ -1,0 +1,115 @@
+{
+	"reactive_results": {
+		"ObjectsMissed": {
+			"rows": 0,
+			"structures": 0
+		}
+	},
+	"results": {
+		"CameraError": {
+			"1": {
+				"missed": false,
+				"time": 2
+			},
+			"2": {
+				"missed": false,
+				"time": 1.59986666666667
+			},
+			"3": {
+				"missed": false,
+				"time": 1.36663333333333
+			},
+			"4": {
+				"missed": false,
+				"time": 1.73333333333334
+			},
+			"5": {
+				"missed": false,
+				"time": 2.23903333333334
+			},
+			"6": {
+				"missed": false,
+				"time": 2.23323333333334
+			},
+			"7": {
+				"missed": false,
+				"time": 2.33323233333333
+			}
+		},
+		"FlightError": {
+			"1": {
+				"missed": false,
+				"time": 2.03333333333334
+			},
+			"2": {
+				"missed": true,
+				"time": 0
+			},
+			"3": {
+				"missed": true,
+				"time": 0
+			},
+			"4": {
+				"missed": true,
+				"time": 0
+			},
+			"5": {
+				"missed": true,
+				"time": 0
+			},
+			"6": {
+				"missed": true,
+				"time": 0
+			},
+			"7": {
+				"missed": true,
+				"time": 0
+			}
+		},
+		"HardwareError": {
+			"1": {
+				"missed": false,
+				"time": 2.06666666666667
+			},
+			"2": {
+				"missed": true,
+				"time": 0
+			},
+			"3": {
+				"missed": true,
+				"time": 0
+			},
+			"4": {
+				"missed": false,
+				"time": 1.86476666666667
+			},
+			"5": {
+				"missed": false,
+				"time": 1.66666666666667
+			},
+			"6": {
+				"missed": true,
+				"time": 0
+			},
+			"7": {
+				"missed": true,
+				"time": 0
+			}
+		}
+	},
+	"userinfo": {
+		"age": 2,
+		"droneautoexp": 2,
+		"droneexp": 2,
+		"id": "2602744390"
+	}
+}
+{
+	"FalsePositives": {
+		"FalsePositives": {
+			"CameraError": 85,
+			"FlightError": 91,
+			"HardwareError": 89
+		}
+	}
+}

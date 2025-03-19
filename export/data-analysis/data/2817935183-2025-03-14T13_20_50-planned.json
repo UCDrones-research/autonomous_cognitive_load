@@ -1,0 +1,109 @@
+{
+	"results": {
+		"CameraError": {
+			"1": {
+				"missed": true,
+				"time": 0
+			},
+			"2": {
+				"missed": true,
+				"time": 0
+			},
+			"3": {
+				"missed": true,
+				"time": 0
+			},
+			"4": {
+				"missed": true,
+				"time": 0
+			},
+			"5": {
+				"missed": true,
+				"time": 0
+			},
+			"6": {
+				"missed": true,
+				"time": 0
+			},
+			"7": {
+				"missed": true,
+				"time": 0
+			}
+		},
+		"FlightError": {
+			"1": {
+				"missed": false,
+				"time": 3.7
+			},
+			"2": {
+				"missed": false,
+				"time": 1.93333333333334
+			},
+			"3": {
+				"missed": true,
+				"time": 0
+			},
+			"4": {
+				"missed": false,
+				"time": 2.46653233333333
+			},
+			"5": {
+				"missed": false,
+				"time": 1.66663233333334
+			},
+			"6": {
+				"missed": true,
+				"time": 0
+			},
+			"7": {
+				"missed": true,
+				"time": 0
+			}
+		},
+		"HardwareError": {
+			"1": {
+				"missed": true,
+				"time": 0
+			},
+			"2": {
+				"missed": false,
+				"time": 1.13333333333333
+			},
+			"3": {
+				"missed": false,
+				"time": 1.2
+			},
+			"4": {
+				"missed": true,
+				"time": 0
+			},
+			"5": {
+				"missed": true,
+				"time": 0
+			},
+			"6": {
+				"missed": false,
+				"time": 1.6
+			},
+			"7": {
+				"missed": true,
+				"time": 0
+			}
+		}
+	},
+	"userinfo": {
+		"age": 2,
+		"droneautoexp": 1,
+		"droneexp": 2,
+		"id": "2817935183"
+	}
+}
+{
+	"FalsePositives": {
+		"FalsePositives": {
+			"CameraError": 12,
+			"FlightError": 8,
+			"HardwareError": 9
+		}
+	}
+}
