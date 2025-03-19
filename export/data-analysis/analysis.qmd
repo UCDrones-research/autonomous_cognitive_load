@@ -562,10 +562,6 @@ def create_heatmap(error_df, type):
                 # If only zeros exist for this cell, use 0
                 time_matrix.loc[idx, col] = 0
     
-    # print(f"\n{type} Mode - Time Matrix Statistics:")
-    # print(f"Min value: {time_matrix.values.min()}")
-    # print(f"Max value: {time_matrix.values.max()}")
-    
     hover_text = np.empty(time_matrix.shape, dtype=object)
     for i in range(time_matrix.shape[0]):
         for j in range(time_matrix.shape[1]):
@@ -590,31 +586,7 @@ def create_heatmap(error_df, type):
         showscale=True,
         text=np.round(time_matrix.values, 2),
         texttemplate='%{text}',
-        textfont={'size': 10},
-        hovertemplate='%{customdata}<extra></extra>',
-        customdata=hover_text,
-        zmin=0,  # Set minimum value to 0
-        zmid=time_matrix.values.max() / 2 if time_matrix.values.max() > 0 else 0.5,  # Set midpoint
-        zauto=False  # Disable automatic range
-    ))
-    
-    fig.update_layout(
-        title=f'{type.capitalize()} Mode: Average Error Resolution Time by Instance<br><sub>*Using non-zero values where available; zero values shown where no non-zero times exist</sub>',
-        xaxis_title='Error Type',
-        yaxis_title='Instance',
-        height=500,
-        coloraxis_colorbar_title='Time'
-    )
-
-    fig = go.Figure(data=go.Heatmap(
-        z=time_matrix.values,
-        x=time_matrix.columns,
-        y=time_matrix.index,
-        colorscale='YlOrRd',
-        showscale=True,
-        text=np.round(time_matrix.values, 2),
-        texttemplate='%{text}',
-        textfont={'size': 10},
+        textfont={'size': 14},  # Increased text size from 10 to 14
         hovertemplate='%{customdata}<extra></extra>',
         customdata=hover_text,
         zmin=0,
@@ -627,9 +599,109 @@ def create_heatmap(error_df, type):
         xaxis_title='Error Type',
         yaxis_title='Instance',
         height=500,
-        width=1000,  # Set explicit width
-        margin=dict(l=50, r=50, t=100, b=50)
+        width=1000,
+        margin=dict(l=50, r=50, t=100, b=50),
+        font=dict(size=14),  # Increased overall font size
+        coloraxis_colorbar_title='Time'
     )
+    
+    # Increase axis tick font size
+    fig.update_xaxes(tickfont=dict(size=14))
+    fig.update_yaxes(tickfont=dict(size=14))
+    
+    return fig
+
+
+def create_missrate_heatmap(error_df, type):
+    """
+    Create Plotly heatmap showing percentage of missed instances,
+    where zero values are considered misses and non-zero values are considered successes.
+    """
+    # Create pivot table with lists of values for each instance/error_type combination
+    all_data_matrix = pd.pivot_table(
+        error_df,
+        values='time',
+        index='instance',
+        columns='error_type',
+        aggfunc=lambda x: list(x)
+    )
+    
+    # Create matrix for miss percentages
+    miss_matrix = pd.DataFrame(
+        index=all_data_matrix.index,
+        columns=all_data_matrix.columns,
+        dtype=float
+    )
+    
+    # Fill in miss percentages - zero values are considered misses
+    for idx in all_data_matrix.index:
+        for col in all_data_matrix.columns:
+            values = all_data_matrix.loc[idx, col]
+            total_count = len(values)
+            
+            if total_count > 0:
+                # Count zero values as misses
+                missed_count = sum(1 for v in values if v == 0)
+                miss_matrix.loc[idx, col] = (missed_count / total_count) * 100
+            else:
+                # If no data exists for this cell, use 0
+                miss_matrix.loc[idx, col] = 0
+    
+    # Create hover text with detailed information
+    hover_text = np.empty(miss_matrix.shape, dtype=object)
+    for i in range(miss_matrix.shape[0]):
+        for j in range(miss_matrix.shape[1]):
+            values = all_data_matrix.iloc[i, j]
+            total_count = len(values)
+            
+            if total_count > 0:
+                missed_count = sum(1 for v in values if v == 0)
+                successful_count = total_count - missed_count
+                hover_text[i, j] = f"Instance: {miss_matrix.index[i]}<br>" \
+                                 f"Error Type: {miss_matrix.columns[j]}<br>" \
+                                 f"Miss Rate: {miss_matrix.iloc[i, j]:.1f}%<br>" \
+                                 f"Missed: {missed_count} of {total_count}<br>" \
+                                 f"(Zero values are considered misses)"
+            else:
+                hover_text[i, j] = f"Instance: {miss_matrix.index[i]}<br>" \
+                                 f"Error Type: {miss_matrix.columns[j]}<br>" \
+                                 f"No data available"
+    
+    # Format percentage text for display in cells
+    text_matrix = np.array([[f"{val:.1f}%" for val in row] for row in miss_matrix.values])
+    
+    # Create the heatmap
+    fig = go.Figure(data=go.Heatmap(
+        z=miss_matrix.values,
+        x=miss_matrix.columns,
+        y=miss_matrix.index,
+        colorscale='Reds',
+        showscale=True,
+        text=text_matrix,
+        texttemplate='%{text}',
+        textfont={'size': 14},  # Increased text size from 10 to 14
+        hovertemplate='%{customdata}<extra></extra>',
+        customdata=hover_text,
+        zmin=0,
+        zmax=100,
+        zauto=False
+    ))
+    
+    fig.update_layout(
+        title=f'{type.capitalize()} Mode: Percentage of Missed Instances by Type<br>' +
+              f'<sub>Zero values are considered misses; higher percentages indicate more frequently missed instances</sub>',
+        xaxis_title='Error Type',
+        yaxis_title='Instance',
+        height=500,
+        width=1000,
+        margin=dict(l=50, r=50, t=100, b=50),
+        font=dict(size=14),  # Increased overall font size
+        coloraxis_colorbar_title='Miss %'
+    )
+    
+    # Increase axis tick font size
+    fig.update_xaxes(tickfont=dict(size=14))
+    fig.update_yaxes(tickfont=dict(size=14))
     
     return fig
 
@@ -740,9 +812,11 @@ def planned_plot():
     dist_fig = create_interactive_visualization(error_df, false_positives_df, 'planned')
     dist_fig.show()
     
-    # Create and display heatmap
+    # Create and display heatmaps
     heatmap_fig = create_heatmap(error_df, 'planned')
     heatmap_fig.show()
+    missrate_heatmap_fig = create_missrate_heatmap(error_df, 'planned')
+    missrate_heatmap_fig.show()
     
 
 def reactive_plot():
@@ -753,6 +827,8 @@ def reactive_plot():
     # Create and display interactive distribution plot
     dist_fig = create_interactive_visualization(error_df, false_positives_df, 'reactive')
     dist_fig.show()
+    missrate_heatmap_fig = create_missrate_heatmap(error_df, 'reactive')
+    missrate_heatmap_fig.show()
     
     # Create and display heatmap
     heatmap_fig = create_heatmap(error_df, 'reactive')
