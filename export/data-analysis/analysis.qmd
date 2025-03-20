@@ -34,15 +34,28 @@ AGE_GROUPS = {
     7: "65+"
 }
 
+EXPERIENCE_LEVEL = {
+    0: "Unknown",
+    1: "Little Experience",
+    2: "Some Experience",
+    3: "A Lot of Experience",
+}
+
 
 def get_age_label(age_code):
     """Convert age code to descriptive label"""
     return AGE_GROUPS.get(age_code, f"Unknown({age_code})")
 
 
+def get_experience_label(exp_code):
+    """Convert experience code to descriptive label"""
+    return EXPERIENCE_LEVEL.get(exp_code, f"Unknown({exp_code})")
+
+
 def process_json_files(file_pattern='*.json'):
     """
     Process multiple JSON files and combine their data into a DataFrame.
+    Now includes experience level data extraction.
     """
     all_error_data = []
     all_reactive_data = []
@@ -86,12 +99,14 @@ def process_json_files(file_pattern='*.json'):
                     # Extract user info
                     user_info = main_data.get('userinfo', {})
                     user_age = user_info.get('age', 0)
+                    user_experience = user_info.get('droneexp', 0)  # Extract experience level
                     
                     # Handle reactive results if present
                     if 'reactive_results' in main_data:
                         reactive_row = {
                             'filename': filename,
                             'age': user_age,
+                            'experience': user_experience,  # Add experience level
                             **main_data.get('reactive_results', {}).get('ObjectsMissed', {})
                         }
                         all_reactive_data.append(reactive_row)
@@ -106,7 +121,8 @@ def process_json_files(file_pattern='*.json'):
                                 'missed': instance_data['missed'],
                                 'time': instance_data['time'],
                                 'filename': filename,
-                                'age': user_age
+                                'age': user_age,
+                                'experience': user_experience  # Add experience level
                             }
                             all_error_data.append(row)
                 
@@ -119,7 +135,8 @@ def process_json_files(file_pattern='*.json'):
                             'error_type': error_type,
                             'count': count,
                             'filename': filename,
-                            'age': user_age
+                            'age': user_age,
+                            'experience': user_experience  # Add experience level
                         })
         except Exception as e:
             print(f"Error processing file {filename}: {e}")
@@ -127,11 +144,11 @@ def process_json_files(file_pattern='*.json'):
 
     # Create DataFrames with default columns even if empty
     error_df = pd.DataFrame(all_error_data) if all_error_data else pd.DataFrame(
-        columns=['error_type', 'instance', 'missed', 'time', 'filename', 'age'])
+        columns=['error_type', 'instance', 'missed', 'time', 'filename', 'age', 'experience'])
     reactive_df = pd.DataFrame(all_reactive_data) if all_reactive_data else pd.DataFrame(
-        columns=['filename', 'age', 'rows', 'structures'])
+        columns=['filename', 'age', 'experience', 'rows', 'structures'])
     false_positives_df = pd.DataFrame(false_positives_data) if false_positives_data else pd.DataFrame(
-        columns=['error_type', 'count', 'filename', 'age'])
+        columns=['error_type', 'count', 'filename', 'age', 'experience'])
     
     return error_df, reactive_df, false_positives_df, counter
 
@@ -139,9 +156,11 @@ def process_json_files(file_pattern='*.json'):
 def create_interactive_visualization(error_df, false_positives_df, type):
     """
     Create interactive Plotly visualization with stacked bar plots for each error type.
+    Includes dropdown filters for both age groups and experience levels.
     """
     error_types = ['CameraError', 'FlightError', 'HardwareError']
     age_groups = sorted(error_df['age'].unique())
+    exp_groups = sorted(error_df['experience'].unique()) if 'experience' in error_df.columns else []
     colors = {'caught': 'lightgreen', 'missed': 'lightcoral', 'false_positives': 'lightskyblue'}
     
     # Create subplots with consistent width
@@ -153,10 +172,11 @@ def create_interactive_visualization(error_df, false_positives_df, type):
     )
     
     # Keep track of trace indices
-    total_traces = []
-    age_group_traces = []
+    total_traces = []  # All users (no filtering)
+    age_group_traces = {}  # Dictionary to store traces by age group
+    exp_group_traces = {}  # Dictionary to store traces by experience level
     
-    # Create base traces (aggregated view)
+    # Create base traces (aggregated view - all users)
     for i, error_type in enumerate(error_types, 1):
         error_data = error_df[error_df['error_type'] == error_type]
         fp_data = false_positives_df[false_positives_df['error_type'] == error_type]
@@ -169,7 +189,7 @@ def create_interactive_visualization(error_df, false_positives_df, type):
         # Add traces for aggregated view
         fig.add_trace(
             go.Bar(
-                x=['All Ages'],
+                x=['All Users'],
                 y=[total_caught],
                 name='Caught' if i == 1 else None,
                 marker_color=colors['caught'],
@@ -183,7 +203,7 @@ def create_interactive_visualization(error_df, false_positives_df, type):
         
         fig.add_trace(
             go.Bar(
-                x=['All Ages'],
+                x=['All Users'],
                 y=[total_missed],
                 name='Missed' if i == 1 else None,
                 marker_color=colors['missed'],
@@ -197,7 +217,7 @@ def create_interactive_visualization(error_df, false_positives_df, type):
         
         fig.add_trace(
             go.Bar(
-                x=['All Ages'],
+                x=['All Users'],
                 y=[total_fp],
                 name='False Positives' if i == 1 else None,
                 marker_color=colors['false_positives'],
@@ -220,6 +240,11 @@ def create_interactive_visualization(error_df, false_positives_df, type):
             missed = age_data['missed'].sum()
             fp_count = age_fp['count'].sum() if not age_fp.empty else 0
             
+            # Create a unique key for this age group's traces
+            age_key = f"age_{age_code}"
+            if age_key not in age_group_traces:
+                age_group_traces[age_key] = []
+            
             fig.add_trace(
                 go.Bar(
                     x=[age_label],
@@ -233,7 +258,7 @@ def create_interactive_visualization(error_df, false_positives_df, type):
                 ),
                 row=1, col=i
             )
-            age_group_traces.append(len(fig.data) - 1)
+            age_group_traces[age_key].append(len(fig.data) - 1)
             
             fig.add_trace(
                 go.Bar(
@@ -248,7 +273,7 @@ def create_interactive_visualization(error_df, false_positives_df, type):
                 ),
                 row=1, col=i
             )
-            age_group_traces.append(len(fig.data) - 1)
+            age_group_traces[age_key].append(len(fig.data) - 1)
             
             fig.add_trace(
                 go.Bar(
@@ -263,38 +288,119 @@ def create_interactive_visualization(error_df, false_positives_df, type):
                 ),
                 row=1, col=i
             )
-            age_group_traces.append(len(fig.data) - 1)
+            age_group_traces[age_key].append(len(fig.data) - 1)
+        
+        # Add experience level traces if experience data is available
+        if 'experience' in error_df.columns:
+            for exp_code in exp_groups:
+                exp_label = get_experience_label(exp_code)
+                exp_data = error_data[error_data['experience'] == exp_code]
+                exp_fp = fp_data[fp_data['experience'] == exp_code] if 'experience' in fp_data.columns else pd.DataFrame()
+                
+                # Calculate values
+                caught = (~exp_data['missed']).sum()
+                missed = exp_data['missed'].sum()
+                fp_count = exp_fp['count'].sum() if not exp_fp.empty else 0
+                
+                # Create a unique key for this experience level's traces
+                exp_key = f"exp_{exp_code}"
+                if exp_key not in exp_group_traces:
+                    exp_group_traces[exp_key] = []
+                
+                fig.add_trace(
+                    go.Bar(
+                        x=[exp_label],
+                        y=[caught],
+                        name='Caught',
+                        marker_color=colors['caught'],
+                        showlegend=False,
+                        visible=False,
+                        legendgroup='caught',
+                        hovertemplate=f'{exp_label}<br>Caught: %{{y}}<extra></extra>',
+                    ),
+                    row=1, col=i
+                )
+                exp_group_traces[exp_key].append(len(fig.data) - 1)
+                
+                fig.add_trace(
+                    go.Bar(
+                        x=[exp_label],
+                        y=[missed],
+                        name='Missed',
+                        marker_color=colors['missed'],
+                        showlegend=False,
+                        visible=False,
+                        legendgroup='missed',
+                        hovertemplate=f'{exp_label}<br>Missed: %{{y}}<extra></extra>',
+                    ),
+                    row=1, col=i
+                )
+                exp_group_traces[exp_key].append(len(fig.data) - 1)
+                
+                fig.add_trace(
+                    go.Bar(
+                        x=[exp_label],
+                        y=[fp_count],
+                        name='False Positives',
+                        marker_color=colors['false_positives'],
+                        showlegend=False,
+                        visible=False,
+                        legendgroup='false_positives',
+                        hovertemplate=f'{exp_label}<br>False Positives: %{{y}}<extra></extra>',
+                    ),
+                    row=1, col=i
+                )
+                exp_group_traces[exp_key].append(len(fig.data) - 1)
 
-    # Add buttons for age group selection
-    buttons = [
-        dict(
-            args=[{
-                'visible': [i in total_traces for i in range(len(fig.data))]
-            }],
-            label="All Ages",
-            method="restyle"
-        )
-    ]
+    # Create dropdown menus
+    buttons = []
     
-    # Add button for each age group
-    for idx, age_code in enumerate(age_groups):
+    # All users option
+    buttons.append(dict(
+        args=[{
+            'visible': [i in total_traces for i in range(len(fig.data))]
+        }],
+        label="All Users",
+        method="restyle"
+    ))
+    
+    # Age group buttons
+    for age_code in age_groups:
         age_label = get_age_label(age_code)
-        age_visibility = []
-        for i in range(len(fig.data)):
-            subplot_idx = i // (3 * (len(age_groups) + 1))
-            is_age_trace = (i - (subplot_idx * 3 * (len(age_groups) + 1)) - 3) // 3 == idx
-            age_visibility.append(is_age_trace)
+        age_key = f"age_{age_code}"
+        
+        # Create visibility array for this age group
+        age_visibility = [False] * len(fig.data)
+        for idx in age_group_traces[age_key]:
+            age_visibility[idx] = True
         
         buttons.append(dict(
             args=[{'visible': age_visibility}],
-            label=age_label,
+            label=f"Age: {age_label}",
             method="restyle"
         ))
+    
+    # Experience level buttons (if data is available)
+    if exp_groups:
+        for exp_code in exp_groups:
+            exp_label = get_experience_label(exp_code)
+            exp_key = f"exp_{exp_code}"
+            
+            # Create visibility array for this experience level
+            exp_visibility = [False] * len(fig.data)
+            for idx in exp_group_traces[exp_key]:
+                exp_visibility[idx] = True
+            
+            buttons.append(dict(
+                args=[{'visible': exp_visibility}],
+                label=f"Exp: {exp_label}",
+                method="restyle"
+            ))
 
     # Update layout
     fig.update_layout(
         barmode='stack',
-        title_text=f"{type.capitalize()} Mode: Error Distribution by Type and Age Group",
+        title_text=f"{type.capitalize()} Mode: Error Distribution by Type, Age Group, and Experience Level",
         height=500,
         width=1000,
         showlegend=True,

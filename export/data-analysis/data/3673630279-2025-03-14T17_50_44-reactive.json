@@ -102,14 +102,10 @@
 		"droneautoexp": 1,
 		"droneexp": 1,
 		"id": "3673630279"
-	}
-}
-{
+	},
 	"FalsePositives": {
-		"FalsePositives": {
 			"CameraError": 4,
 			"FlightError": 4,
 			"HardwareError": 4
-		}
 	}
 }
