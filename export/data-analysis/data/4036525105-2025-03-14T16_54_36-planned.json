@@ -99,7 +99,7 @@
 	},
 	"FalsePositives": {
 			"CameraError": 2,
-			"FlightError": -2,
+			"FlightError": 2,
 			"HardwareError": 2
 	}
 }
