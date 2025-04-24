@@ -1,0 +1,412 @@
+[gd_scene load_steps=33 format=3 uid="uid://cjjqmod1v0cyc"]
+
+[ext_resource type="Curve2D" uid="uid://duur5epi7jfa3" path="res://scenes/reactive_flight_path.tres" id="1_1p0p5"]
+[ext_resource type="PackedScene" uid="uid://ocgiw72l25ek" path="res://scenes/drone.tscn" id="1_fnmkl"]
+[ext_resource type="Script" uid="uid://dvi5enx55tt0o" path="res://scripts/flight_path_reactive.gd" id="2_83k66"]
+[ext_resource type="Script" uid="uid://dtr7l1gx4botx" path="res://scenes/camera_control.gd" id="4_3ds64"]
+[ext_resource type="Script" uid="uid://cedvws2isjjo4" path="res://scripts/flight_errors.gd" id="5_u8u7i"]
+[ext_resource type="Script" uid="uid://c1mfic0oqd7y7" path="res://scripts/hardware_errors.gd" id="6_1eei4"]
+[ext_resource type="Script" uid="uid://bwe0xf32b1bwi" path="res://scripts/camera_errors.gd" id="7_mjb7n"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_h8ped"]
+radius = 73.9466
+height = 163.588
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_clbok"]
+radius = 81.0
+height = 204.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_bj8s0"]
+radius = 57.0
+height = 206.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0lv66"]
+size = Vector2(493.5, 483)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_j3rgn"]
+radius = 71.007
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_80hg2"]
+size = Vector2(1077, 1916)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_2h4nv"]
+radius = 26.0
+height = 134.995
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_358ao"]
+radius = 19.0
+height = 60.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2u1a5"]
+radius = 27.074
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_f6832"]
+radius = 28.0
+height = 112.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_khdfv"]
+radius = 28.0179
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_fon0s"]
+height = 89.4491
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_q2haj"]
+height = 132.965
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_u4n58"]
+height = 89.4491
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gojbq"]
+radius = 37.5779
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_37kls"]
+radius = 41.4091
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hjlpw"]
+radius = 37.5778
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_2s8ag"]
+radius = 36.25
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_4cj2d"]
+radius = 41.2677
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_f5l1r"]
+radius = 38.8253
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_s8ru5"]
+radius = 17.0759
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ldxeg"]
+radius = 25.0292
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_dsyh6"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_s8044"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_18mwi"]
+height = 77.5
+
+[node name="Reactive Flight Path" type="Path2D"]
+curve = ExtResource("1_1p0p5")
+script = ExtResource("2_83k66")
+
+[node name="PathFollow2D" type="PathFollow2D" parent="."]
+position = Vector2(201, 193)
+rotation = 0.334462
+
+[node name="Drone" parent="PathFollow2D" instance=ExtResource("1_fnmkl")]
+rotation = -1.5708
+
+[node name="CameraOnZone1" type="Area2D" parent="."]
+collision_mask = 2
+script = ExtResource("4_3ds64")
+zone_num = 1
+type = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraOnZone1"]
+position = Vector2(350, 307)
+rotation = 3.14159
+shape = SubResource("CapsuleShape2D_h8ped")
+
+[node name="CameraOnZone2" type="Area2D" parent="."]
+collision_mask = 2
+script = ExtResource("4_3ds64")
+zone_num = 2
+type = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraOnZone2"]
+position = Vector2(522, 350)
+rotation = 1.57079
+shape = SubResource("CapsuleShape2D_clbok")
+
+[node name="CameraOnZone3" type="Area2D" parent="."]
+collision_mask = 2
+script = ExtResource("4_3ds64")
+zone_num = 3
+type = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraOnZone3"]
+position = Vector2(903, 221)
+rotation = 1.57079
+shape = SubResource("CapsuleShape2D_bj8s0")
+
+[node name="CameraOnZone4" type="Area2D" parent="."]
+collision_mask = 2
+script = ExtResource("4_3ds64")
+zone_num = 4
+type = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraOnZone4"]
+position = Vector2(1544, 228)
+rotation = 1.57079
+shape = SubResource("CapsuleShape2D_bj8s0")
+
+[node name="CameraOnZone5" type="Area2D" parent="."]
+position = Vector2(-16, 307)
+collision_mask = 2
+script = ExtResource("4_3ds64")
+zone_num = 5
+type = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraOnZone5"]
+position = Vector2(1550, 237.5)
+rotation = 1.57079
+shape = SubResource("RectangleShape2D_0lv66")
+
+[node name="CameraOnZone6" type="Area2D" parent="."]
+position = Vector2(-642, 307)
+collision_mask = 2
+script = ExtResource("4_3ds64")
+zone_num = 6
+type = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraOnZone6"]
+position = Vector2(1551.5, 237.75)
+rotation = 1.57079
+shape = SubResource("RectangleShape2D_0lv66")
+
+[node name="CameraOnZone7" type="Area2D" parent="."]
+position = Vector2(411, 484)
+collision_mask = 2
+script = ExtResource("4_3ds64")
+zone_num = 7
+type = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraOnZone7"]
+position = Vector2(3.00003, 5.00003)
+shape = SubResource("CircleShape2D_j3rgn")
+
+[node name="CameraOffZone" type="Area2D" parent="."]
+visible = false
+position = Vector2(593.908, 912.189)
+rotation = 0.523598
+collision_mask = 2
+script = ExtResource("4_3ds64")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraOffZone"]
+position = Vector2(130.7, -505.804)
+rotation = 1.0472
+shape = SubResource("RectangleShape2D_80hg2")
+
+[node name="FlightErrorZone1" type="Area2D" parent="."]
+position = Vector2(1638, 568)
+rotation = -3.14159
+collision_mask = 2
+script = ExtResource("5_u8u7i")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlightErrorZone1"]
+shape = SubResource("CapsuleShape2D_2h4nv")
+
+[node name="FlightErrorZone2" type="Area2D" parent="."]
+position = Vector2(1617, 225)
+rotation = -3.14159
+collision_mask = 2
+script = ExtResource("5_u8u7i")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlightErrorZone2"]
+position = Vector2(-4.99987, 30)
+shape = SubResource("CapsuleShape2D_358ao")
+
+[node name="FlightErrorZone3" type="Area2D" parent="."]
+position = Vector2(1278, 362)
+rotation = -0.523598
+collision_mask = 2
+script = ExtResource("5_u8u7i")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlightErrorZone3"]
+shape = SubResource("CapsuleShape2D_2h4nv")
+
+[node name="FlightErrorZone4" type="Area2D" parent="."]
+position = Vector2(1057, 448)
+rotation = -3.14159
+collision_mask = 2
+script = ExtResource("5_u8u7i")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlightErrorZone4"]
+shape = SubResource("CircleShape2D_2u1a5")
+
+[node name="FlightErrorZone5" type="Area2D" parent="."]
+position = Vector2(961, 682)
+rotation = -1.57079
+collision_mask = 2
+script = ExtResource("5_u8u7i")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlightErrorZone5"]
+shape = SubResource("CapsuleShape2D_2h4nv")
+
+[node name="FlightErrorZone6" type="Area2D" parent="."]
+position = Vector2(738, 377)
+rotation = -3.14159
+collision_mask = 2
+script = ExtResource("5_u8u7i")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlightErrorZone6"]
+shape = SubResource("CapsuleShape2D_f6832")
+
+[node name="FlightErrorZone7" type="Area2D" parent="."]
+position = Vector2(368, 509)
+rotation = -3.14159
+collision_mask = 2
+script = ExtResource("5_u8u7i")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlightErrorZone7"]
+shape = SubResource("CircleShape2D_khdfv")
+
+[node name="HardwareErrorZone1" type="Area2D" parent="."]
+position = Vector2(600, 351)
+collision_mask = 2
+script = ExtResource("6_1eei4")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HardwareErrorZone1"]
+position = Vector2(-1.25, -1.20877)
+shape = SubResource("CapsuleShape2D_fon0s")
+
+[node name="HardwareErrorZone2" type="Area2D" parent="."]
+position = Vector2(1765, 643)
+collision_mask = 2
+script = ExtResource("6_1eei4")
+zone_num = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HardwareErrorZone2"]
+shape = SubResource("CapsuleShape2D_q2haj")
+
+[node name="HardwareErrorZone3" type="Area2D" parent="."]
+position = Vector2(1443, 586)
+collision_mask = 2
+script = ExtResource("6_1eei4")
+zone_num = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HardwareErrorZone3"]
+shape = SubResource("CapsuleShape2D_u4n58")
+
+[node name="HardwareErrorZone4" type="Area2D" parent="."]
+position = Vector2(1098, 763)
+collision_mask = 2
+script = ExtResource("6_1eei4")
+zone_num = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HardwareErrorZone4"]
+scale = Vector2(1.09557, 0.699564)
+shape = SubResource("CircleShape2D_gojbq")
+
+[node name="HardwareErrorZone5" type="Area2D" parent="."]
+position = Vector2(728, 763)
+collision_mask = 2
+script = ExtResource("6_1eei4")
+zone_num = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HardwareErrorZone5"]
+scale = Vector2(1, 0.662143)
+shape = SubResource("CircleShape2D_37kls")
+
+[node name="HardwareErrorZone6" type="Area2D" parent="."]
+position = Vector2(586, 448)
+collision_mask = 2
+script = ExtResource("6_1eei4")
+zone_num = 6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HardwareErrorZone6"]
+scale = Vector2(1.10101, 0.715987)
+shape = SubResource("CircleShape2D_hjlpw")
+
+[node name="HardwareErrorZone7" type="Area2D" parent="."]
+position = Vector2(438, 529)
+collision_mask = 2
+script = ExtResource("6_1eei4")
+zone_num = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HardwareErrorZone7"]
+shape = SubResource("CircleShape2D_2s8ag")
+
+[node name="CameraErrorZone1" type="Area2D" parent="."]
+position = Vector2(438, 246)
+scale = Vector2(0.787331, 0.859118)
+collision_mask = 2
+script = ExtResource("7_mjb7n")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraErrorZone1"]
+scale = Vector2(0.656196, 1.01516)
+shape = SubResource("CircleShape2D_4cj2d")
+
+[node name="CameraErrorZone2" type="Area2D" parent="."]
+position = Vector2(816, 211)
+scale = Vector2(0.877541, 0.572512)
+collision_mask = 2
+script = ExtResource("7_mjb7n")
+zone_num = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraErrorZone2"]
+scale = Vector2(0.656038, 1.26812)
+shape = SubResource("CircleShape2D_f5l1r")
+
+[node name="CameraErrorZone3" type="Area2D" parent="."]
+position = Vector2(1759, 394)
+collision_mask = 2
+script = ExtResource("7_mjb7n")
+zone_num = 3
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraErrorZone3"]
+scale = Vector2(1.34886, 2.42392)
+shape = SubResource("CircleShape2D_s8ru5")
+
+[node name="CameraErrorZone4" type="Area2D" parent="."]
+position = Vector2(1378, 735)
+scale = Vector2(1.07285, 1.46284)
+collision_mask = 2
+script = ExtResource("7_mjb7n")
+zone_num = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraErrorZone4"]
+scale = Vector2(0.67701, 1.02834)
+shape = SubResource("CircleShape2D_ldxeg")
+
+[node name="CameraErrorZone5" type="Area2D" parent="."]
+position = Vector2(899, 314)
+scale = Vector2(0.823759, 0.824777)
+collision_mask = 2
+script = ExtResource("7_mjb7n")
+zone_num = 5
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraErrorZone5"]
+scale = Vector2(2.91108, -1.93991)
+shape = SubResource("CircleShape2D_dsyh6")
+
+[node name="CameraErrorZone6" type="Area2D" parent="."]
+position = Vector2(833, 763)
+scale = Vector2(-1.75266, 1.17428)
+collision_mask = 2
+script = ExtResource("7_mjb7n")
+zone_num = 6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraErrorZone6"]
+scale = Vector2(2.06912, 1.1401)
+shape = SubResource("CircleShape2D_s8044")
+
+[node name="CameraErrorZone7" type="Area2D" parent="."]
+position = Vector2(357, 417)
+rotation = 0.261799
+collision_mask = 2
+script = ExtResource("7_mjb7n")
+zone_num = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraErrorZone7"]
+rotation = 1.5708
+shape = SubResource("CapsuleShape2D_18mwi")
+
+[connection signal="area_entered" from="FlightErrorZone1" to="FlightErrorZone1" method="_on_area_entered"]
+[connection signal="area_entered" from="FlightErrorZone2" to="FlightErrorZone2" method="_on_area_entered"]
+[connection signal="area_entered" from="FlightErrorZone3" to="FlightErrorZone3" method="_on_area_entered"]
+[connection signal="area_entered" from="FlightErrorZone4" to="FlightErrorZone4" method="_on_area_entered"]
+[connection signal="area_entered" from="FlightErrorZone5" to="FlightErrorZone5" method="_on_area_entered"]
+[connection signal="area_entered" from="FlightErrorZone6" to="FlightErrorZone6" method="_on_area_entered"]
+[connection signal="area_entered" from="FlightErrorZone7" to="FlightErrorZone7" method="_on_area_entered"]

@@ -1,0 +1,550 @@
+[gd_scene load_steps=8 format=3 uid="uid://7w83ysvxtbfd"]
+
+[ext_resource type="Texture2D" uid="uid://bx17acfpqvy5w" path="res://assets/leftmenu.png" id="1_ldwph"]
+[ext_resource type="Script" uid="uid://bpghl4lo5guvf" path="res://scripts/hud.gd" id="1_nr2ie"]
+[ext_resource type="Texture2D" uid="uid://bxucqitgqly7f" path="res://assets/ring.png" id="1_pdp3w"]
+[ext_resource type="AudioStream" uid="uid://br06ujcn5qvbc" path="res://assets/camera-shutter.mp3" id="2_02pjk"]
+[ext_resource type="Texture2D" uid="uid://brxvwlngl3ob5" path="res://assets/gear.png" id="3_nkkme"]
+[ext_resource type="Texture2D" uid="uid://stpajvtutvs2" path="res://assets/camera.png" id="4_fy1up"]
+[ext_resource type="Theme" uid="uid://f0hknxxq7bvj" path="res://theme.tres" id="7_c37ay"]
+
+[node name="HUD" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_nr2ie")
+
+[node name="CameraSound" type="AudioStreamPlayer2D" parent="."]
+position = Vector2(1033, 545)
+stream = ExtResource("2_02pjk")
+max_distance = 4096.0
+attenuation = 7.51432e-05
+panning_strength = 0.0
+area_mask = 0
+
+[node name="Survey" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 452.0
+offset_right = 1586.0
+offset_bottom = 1080.0
+
+[node name="Label" type="Label" parent="Survey"]
+layout_mode = 0
+offset_left = 362.0
+offset_top = 18.0
+offset_right = 753.0
+offset_bottom = 95.0
+theme_override_font_sizes/font_size = 48
+text = "Pre-Flight Survey"
+
+[node name="NameEntry" type="TextEdit" parent="Survey"]
+layout_mode = 0
+offset_left = 177.0
+offset_top = 145.0
+offset_right = 926.0
+offset_bottom = 210.0
+theme_override_font_sizes/font_size = 32
+placeholder_text = "Enter your name here (ex. John Doe)"
+
+[node name="AgeSelect" type="OptionButton" parent="Survey"]
+layout_mode = 0
+offset_left = 362.0
+offset_top = 297.0
+offset_right = 734.0
+offset_bottom = 350.0
+theme_override_font_sizes/font_size = 32
+selected = 0
+item_count = 8
+popup/item_0/text = "Please select your age"
+popup/item_0/id = 0
+popup/item_1/text = "12 - 17"
+popup/item_1/id = 1
+popup/item_2/text = "18 - 24"
+popup/item_2/id = 2
+popup/item_3/text = "25 - 34"
+popup/item_3/id = 3
+popup/item_4/text = "35 - 44"
+popup/item_4/id = 4
+popup/item_5/text = "45 - 54"
+popup/item_5/id = 5
+popup/item_6/text = "55 - 64"
+popup/item_6/id = 6
+popup/item_7/text = "65+"
+popup/item_7/id = 7
+
+[node name="DroneExpSelect" type="OptionButton" parent="Survey"]
+layout_mode = 0
+offset_left = 162.0
+offset_top = 484.0
+offset_right = 961.0
+offset_bottom = 537.0
+theme_override_font_sizes/font_size = 32
+selected = 0
+item_count = 4
+popup/item_0/text = "Please select your level of experience with drones"
+popup/item_0/id = 0
+popup/item_1/text = "Little Experience"
+popup/item_1/id = 1
+popup/item_2/text = "Some Experience"
+popup/item_2/id = 2
+popup/item_3/text = "A lot of experience"
+popup/item_3/id = 3
+
+[node name="DroneAutoExpSelect" type="OptionButton" parent="Survey"]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 691.0
+offset_right = 1049.0
+offset_bottom = 744.0
+theme_override_font_sizes/font_size = 32
+selected = 0
+item_count = 4
+popup/item_0/text = "Please select your level of experience with drone automation"
+popup/item_0/id = 0
+popup/item_1/text = "Little Experience"
+popup/item_1/id = 1
+popup/item_2/text = "Some Experience"
+popup/item_2/id = 2
+popup/item_3/text = "A lot of experience"
+popup/item_3/id = 3
+
+[node name="SurveySubmit" type="Button" parent="Survey"]
+layout_mode = 0
+offset_left = 443.0
+offset_top = 975.0
+offset_right = 658.0
+offset_bottom = 1040.0
+theme = ExtResource("7_c37ay")
+theme_override_font_sizes/font_size = 32
+text = "Submit"
+
+[node name="TextureRect" type="TextureRect" parent="." groups=["finish"]]
+z_index = 2
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 1097.0
+texture = ExtResource("1_ldwph")
+
+[node name="Battery" type="TextureProgressBar" parent="TextureRect"]
+layout_mode = 2
+offset_left = 35.0
+offset_top = 36.0
+offset_right = 169.0
+offset_bottom = 170.0
+rounded = true
+fill_mode = 4
+texture_under = ExtResource("1_pdp3w")
+texture_progress = ExtResource("1_pdp3w")
+tint_under = Color(1, 1, 1, 0.87451)
+tint_progress = Color(1.05888e-06, 0.750881, 0.252197, 1)
+
+[node name="BatteryLabel" type="Label" parent="TextureRect/Battery"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 28.0
+offset_right = 64.0
+offset_bottom = 63.0
+scale = Vector2(2, 2)
+theme_override_font_sizes/font_size = 20
+text = "100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Altitude" type="TextureButton" parent="TextureRect"]
+layout_mode = 0
+offset_left = 35.0
+offset_top = 316.0
+offset_right = 156.0
+offset_bottom = 383.0
+
+[node name="Label" type="Label" parent="TextureRect/Altitude"]
+layout_mode = 0
+offset_right = 121.0
+offset_bottom = 34.0
+theme_override_font_sizes/font_size = 24
+text = "Altitude:"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NumFeet" type="Label" parent="TextureRect/Altitude"]
+layout_mode = 0
+offset_top = 34.0
+offset_right = 121.0
+offset_bottom = 68.0
+theme_override_font_sizes/font_size = 24
+text = "0000 Feet"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RC" type="ProgressBar" parent="TextureRect"]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 526.0
+offset_right = 186.0
+offset_bottom = 586.0
+theme_override_font_sizes/font_size = 24
+value = 100.0
+
+[node name="RCLabel" type="Label" parent="TextureRect/RC"]
+layout_mode = 0
+offset_left = 34.0
+offset_top = -35.0
+offset_right = 132.0
+theme_override_font_sizes/font_size = 24
+text = "RC"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Camera" type="TextureButton" parent="TextureRect"]
+layout_mode = 0
+offset_left = 35.0
+offset_top = 691.0
+offset_right = 163.0
+offset_bottom = 819.0
+texture_normal = ExtResource("4_fy1up")
+
+[node name="CameraLabel" type="Label" parent="TextureRect/Camera"]
+layout_mode = 0
+offset_top = 99.0
+offset_right = 128.0
+offset_bottom = 133.0
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
+[node name="Settings" type="TextureButton" parent="TextureRect"]
+layout_mode = 0
+offset_left = 35.0
+offset_top = 910.0
+offset_right = 163.0
+offset_bottom = 1038.0
+texture_normal = ExtResource("3_nkkme")
+
+[node name="Start" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 733.0
+offset_top = 384.0
+offset_right = 1033.0
+offset_bottom = 484.0
+
+[node name="Label" type="Label" parent="Start"]
+layout_mode = 0
+offset_right = 300.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "Start Planned Simulation"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Start2" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 1065.0
+offset_top = 384.0
+offset_right = 1365.0
+offset_bottom = 484.0
+
+[node name="Label" type="Label" parent="Start2"]
+layout_mode = 0
+offset_right = 300.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "Start Reactive Simulation"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Instructions" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 895.0
+offset_top = 526.0
+offset_right = 1175.0
+offset_bottom = 626.0
+
+[node name="Label" type="Label" parent="Instructions"]
+layout_mode = 0
+offset_right = 280.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "Show Tutorial"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ReactiveMissCount" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 733.0
+offset_top = 36.0
+offset_right = 1282.0
+offset_bottom = 393.0
+
+[node name="ReactiveCount" type="Button" parent="ReactiveMissCount"]
+layout_mode = 0
+offset_left = 135.0
+offset_top = 261.0
+offset_right = 418.0
+offset_bottom = 339.0
+theme_override_font_sizes/font_size = 24
+text = "Submit Responses"
+
+[node name="Label" type="Label" parent="ReactiveMissCount"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 28.0
+offset_right = 419.0
+offset_bottom = 73.0
+theme_override_font_sizes/font_size = 24
+text = "How many structures did the drone miss?"
+
+[node name="Label2" type="Label" parent="ReactiveMissCount"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 153.0
+offset_right = 538.0
+offset_bottom = 198.0
+theme_override_font_sizes/font_size = 24
+text = "How many rows of crops did the drone miss?"
+
+[node name="StructuesMissed" type="TextEdit" parent="ReactiveMissCount"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 73.0
+offset_right = 249.0
+offset_bottom = 117.0
+placeholder_text = "Enter number here (ex. 2)"
+
+[node name="RowsMissed" type="TextEdit" parent="ReactiveMissCount"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 198.0
+offset_right = 241.0
+offset_bottom = 242.0
+placeholder_text = "Enter number here (ex. 2)"
+
+[node name="Results" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 646.0
+offset_top = 36.0
+offset_right = 1410.0
+offset_bottom = 348.0
+
+[node name="Label" type="Label" parent="Results"]
+layout_mode = 0
+offset_left = 209.0
+offset_top = 28.0
+offset_right = 532.0
+offset_bottom = 73.0
+theme_override_font_sizes/font_size = 32
+text = "Simulation Complete"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label2" type="Label" parent="Results"]
+layout_mode = 0
+offset_left = 135.0
+offset_top = 98.0
+offset_right = 424.0
+offset_bottom = 280.0
+theme_override_font_sizes/font_size = 24
+text = "Events Detected:
+
+Events Missed:
+
+Average Detection Time:"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="NumDetectedLabel" type="Label" parent="Results"]
+layout_mode = 0
+offset_left = 444.0
+offset_top = 98.0
+offset_right = 547.0
+offset_bottom = 280.0
+theme_override_font_sizes/font_size = 24
+
+[node name="NumMissedLabel" type="Label" parent="Results"]
+layout_mode = 0
+offset_left = 444.0
+offset_top = 98.0
+offset_right = 547.0
+offset_bottom = 280.0
+theme_override_font_sizes/font_size = 24
+vertical_alignment = 1
+
+[node name="AvgTimeLabel" type="Label" parent="Results"]
+layout_mode = 0
+offset_left = 444.0
+offset_top = 98.0
+offset_right = 547.0
+offset_bottom = 280.0
+theme_override_font_sizes/font_size = 24
+vertical_alignment = 2
+
+[node name="DownloadButton" type="Button" parent="Results"]
+layout_mode = 0
+offset_left = 222.0
+offset_top = 339.0
+offset_right = 541.0
+offset_bottom = 426.0
+theme_override_font_sizes/font_size = 32
+text = "Download Results"
+
+[node name="Submit" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 882.0
+offset_top = 462.0
+offset_right = 1162.0
+offset_bottom = 562.0
+
+[node name="Label" type="Label" parent="Submit"]
+layout_mode = 0
+offset_right = 280.0
+offset_bottom = 100.0
+theme_override_font_sizes/font_size = 24
+text = "Return to Main Menu"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Panel" type="Panel" parent="Submit"]
+layout_mode = 0
+offset_left = -53.0
+offset_top = -108.0
+offset_right = 337.0
+offset_bottom = -13.0
+
+[node name="Label2" type="Label" parent="Submit"]
+layout_mode = 0
+offset_left = -40.0
+offset_top = -99.0
+offset_right = 325.0
+offset_bottom = -19.0
+theme_override_font_sizes/font_size = 24
+text = "Please email your results to jwinters3@ucmerced.edu"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Flight Error" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 425.0
+offset_top = 934.0
+offset_right = 705.0
+offset_bottom = 1010.0
+theme = ExtResource("7_c37ay")
+text = "FLIGHT PATH ERROR"
+
+[node name="Label" type="Label" parent="Flight Error"]
+layout_mode = 0
+offset_left = 103.0
+offset_top = 86.0
+offset_right = 167.0
+offset_bottom = 137.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Altitude Error" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 735.0
+offset_top = 934.0
+offset_right = 1015.0
+offset_bottom = 1010.0
+theme = ExtResource("7_c37ay")
+text = "ALTITUDE ERROR"
+
+[node name="Label" type="Label" parent="Altitude Error"]
+layout_mode = 0
+offset_left = 103.0
+offset_top = 86.0
+offset_right = 167.0
+offset_bottom = 137.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Hardware Error" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 1045.0
+offset_top = 934.0
+offset_right = 1325.0
+offset_bottom = 1010.0
+theme = ExtResource("7_c37ay")
+text = "RADIO ERROR"
+
+[node name="Label" type="Label" parent="Hardware Error"]
+layout_mode = 0
+offset_left = 103.0
+offset_top = 86.0
+offset_right = 167.0
+offset_bottom = 137.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Camera Error" type="Button" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 1355.0
+offset_top = 934.0
+offset_right = 1635.0
+offset_bottom = 1010.0
+theme = ExtResource("7_c37ay")
+text = "CAMERA ERROR"
+
+[node name="Label" type="Label" parent="Camera Error"]
+layout_mode = 0
+offset_left = 103.0
+offset_top = 86.0
+offset_right = 167.0
+offset_bottom = 137.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Done" type="Button" parent="."]
+visible = false
+offset_left = 1674.0
+offset_top = 36.0
+offset_right = 1869.0
+offset_bottom = 139.0
+
+[node name="Label" type="Label" parent="Done"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
+text = "Done"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="Survey/SurveySubmit" to="." method="_on_survey_submit_pressed"]
+[connection signal="pressed" from="Start" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="Start2" to="." method="_on_start_2_pressed"]
+[connection signal="pressed" from="Instructions" to="." method="_on_instructions_pressed"]
+[connection signal="pressed" from="ReactiveMissCount/ReactiveCount" to="." method="_on_reactive_count_pressed"]
+[connection signal="pressed" from="Results/DownloadButton" to="." method="_on_download_button_pressed"]
+[connection signal="pressed" from="Submit" to="." method="_on_submit_pressed"]
+[connection signal="button_down" from="Flight Error" to="." method="_on_flight_error_button_down"]
+[connection signal="button_down" from="Altitude Error" to="." method="_on_altitude_error_button_down"]
+[connection signal="button_down" from="Hardware Error" to="." method="_on_hardware_error_button_down"]
+[connection signal="button_down" from="Camera Error" to="." method="_on_camera_error_button_down"]
+[connection signal="pressed" from="Done" to="." method="_on_done_pressed"]

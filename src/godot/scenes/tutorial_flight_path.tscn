@@ -1,0 +1,273 @@
+[gd_scene load_steps=12 format=3 uid="uid://dvjv01lptyh7k"]
+
+[ext_resource type="Curve2D" uid="uid://c1y5mvl43uual" path="res://scenes/tutorial_flight_path.tres" id="1_5d57x"]
+[ext_resource type="Script" uid="uid://laob1mumbxh2" path="res://scripts/tutorial_flight_path.gd" id="1_66ixw"]
+[ext_resource type="PackedScene" uid="uid://ocgiw72l25ek" path="res://scenes/drone.tscn" id="3_fr6xt"]
+[ext_resource type="Script" uid="uid://cedvws2isjjo4" path="res://scripts/flight_errors.gd" id="4_kk27u"]
+[ext_resource type="Script" uid="uid://c1mfic0oqd7y7" path="res://scripts/hardware_errors.gd" id="5_knnar"]
+[ext_resource type="Script" uid="uid://bwe0xf32b1bwi" path="res://scripts/camera_errors.gd" id="6_ylk5v"]
+[ext_resource type="Texture2D" uid="uid://44wrltmj6rqn" path="res://assets/arrow.png" id="7_jf1v3"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_niouc"]
+radius = 33.75
+height = 188.568
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0gc2d"]
+height = 89.4491
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_54gxa"]
+height = 132.965
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_n31n5"]
+radius = 55.766
+
+[node name="Tutuorial Flight Path" type="Path2D" groups=["finish"]]
+z_index = 3
+position = Vector2(234, 63)
+scale = Vector2(0.8, 0.827286)
+curve = ExtResource("1_5d57x")
+script = ExtResource("1_66ixw")
+
+[node name="PathFollow2D" type="PathFollow2D" parent="."]
+rotation = 1.5708
+loop = false
+
+[node name="Drone" parent="PathFollow2D" instance=ExtResource("3_fr6xt")]
+rotation = -1.5708
+
+[node name="FlightErrorZone1" type="Area2D" parent="."]
+position = Vector2(8.75, 288.896)
+collision_mask = 2
+script = ExtResource("4_kk27u")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FlightErrorZone1"]
+shape = SubResource("CapsuleShape2D_niouc")
+
+[node name="HardwareErrorZone1" type="Area2D" parent="."]
+position = Vector2(1.25, 482.3)
+collision_mask = 2
+script = ExtResource("5_knnar")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HardwareErrorZone1"]
+position = Vector2(-1.25, -1.20877)
+shape = SubResource("CapsuleShape2D_0gc2d")
+
+[node name="HardwareErrorZone2" type="Area2D" parent="."]
+position = Vector2(0, 653.946)
+collision_mask = 2
+script = ExtResource("5_knnar")
+zone_num = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HardwareErrorZone2"]
+shape = SubResource("CapsuleShape2D_54gxa")
+
+[node name="CameraErrorZone1" type="Area2D" parent="."]
+position = Vector2(0, 837.679)
+scale = Vector2(0.787331, 0.859118)
+collision_mask = 2
+script = ExtResource("6_ylk5v")
+zone_num = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CameraErrorZone1"]
+scale = Vector2(0.656196, 1.01516)
+shape = SubResource("CircleShape2D_n31n5")
+
+[node name="InstructionsPanel" type="Panel" parent="."]
+visible = false
+top_level = true
+z_index = 10
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AltiInstructLabel" type="Panel" parent="InstructionsPanel"]
+visible = false
+z_index = 3
+layout_mode = 0
+offset_left = 196.0
+offset_top = 310.0
+offset_right = 842.0
+offset_bottom = 413.0
+
+[node name="Label" type="Label" parent="InstructionsPanel/AltiInstructLabel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
+text = "The drone's altitude will fluctuate during flight. It should not exceed 400 feet."
+autowrap_mode = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="InstructionsPanel/AltiInstructLabel"]
+z_index = 3
+position = Vector2(-78, 132)
+texture = ExtResource("7_jf1v3")
+
+[node name="RadioInstructLabel" type="Panel" parent="InstructionsPanel"]
+visible = false
+z_index = 3
+layout_mode = 0
+offset_left = 198.0
+offset_top = 509.0
+offset_right = 990.0
+offset_bottom = 614.0
+
+[node name="Label3" type="Label" parent="InstructionsPanel/RadioInstructLabel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
+text = "The radio reception will also fluctiate during flight.
+Occasionally, the signal may severely degrade."
+
+[node name="Sprite2D" type="Sprite2D" parent="InstructionsPanel/RadioInstructLabel"]
+z_index = 3
+position = Vector2(-82, 109)
+texture = ExtResource("7_jf1v3")
+
+[node name="CameraInstructLabel" type="Panel" parent="InstructionsPanel"]
+visible = false
+z_index = 3
+layout_mode = 0
+offset_left = 202.0
+offset_top = 759.0
+offset_right = 1202.0
+offset_bottom = 864.0
+
+[node name="Label4" type="Label" parent="InstructionsPanel/CameraInstructLabel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 6.0
+offset_right = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 32
+text = "The drone will take images at a consistent interval during flight. 
+Listen to ensure there are no missed images."
+
+[node name="Sprite2D" type="Sprite2D" parent="InstructionsPanel/CameraInstructLabel"]
+z_index = 3
+position = Vector2(-82, 109)
+texture = ExtResource("7_jf1v3")
+
+[node name="FlightButtonLabel" type="Panel" parent="InstructionsPanel"]
+visible = false
+layout_mode = 0
+offset_left = 384.0
+offset_top = 767.0
+offset_right = 744.0
+offset_bottom = 909.0
+
+[node name="Label9" type="Label" parent="InstructionsPanel/FlightButtonLabel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "If the drone deviates from its expected path, click this button."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="InstructionsPanel/FlightButtonLabel"]
+position = Vector2(176, 279)
+texture = ExtResource("7_jf1v3")
+
+[node name="Sprite2D2" type="Sprite2D" parent="InstructionsPanel/FlightButtonLabel"]
+position = Vector2(-80, -541)
+rotation = -1.5708
+texture = ExtResource("7_jf1v3")
+
+[node name="AltButtonLabel" type="Panel" parent="InstructionsPanel"]
+visible = false
+layout_mode = 0
+offset_left = 712.0
+offset_top = 728.0
+offset_right = 1068.0
+offset_bottom = 909.0
+
+[node name="Label7" type="Label" parent="InstructionsPanel/AltButtonLabel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -1.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "If the drone deviates from its expected altitude, click this button."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="InstructionsPanel/AltButtonLabel"]
+position = Vector2(158, 317)
+texture = ExtResource("7_jf1v3")
+
+[node name="RadioButtonLabel" type="Panel" parent="InstructionsPanel"]
+visible = false
+layout_mode = 0
+offset_left = 983.0
+offset_top = 766.0
+offset_right = 1371.0
+offset_bottom = 909.0
+
+[node name="Label5" type="Label" parent="InstructionsPanel/RadioButtonLabel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "If the drone's radio reception severely drops, click this button."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="InstructionsPanel/RadioButtonLabel"]
+position = Vector2(197, 279)
+texture = ExtResource("7_jf1v3")
+
+[node name="CameraButtonLabel" type="Panel" parent="InstructionsPanel"]
+visible = false
+layout_mode = 0
+offset_left = 1332.0
+offset_top = 758.0
+offset_right = 1703.0
+offset_bottom = 909.0
+
+[node name="Label6" type="Label" parent="InstructionsPanel/CameraButtonLabel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 30
+text = "If the drone stops taking images during flight, click this button."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="InstructionsPanel/CameraButtonLabel"]
+position = Vector2(159, 286)
+texture = ExtResource("7_jf1v3")
+
+[connection signal="area_entered" from="FlightErrorZone1" to="." method="_on_flight_error_zone_1_area_entered"]
+[connection signal="area_entered" from="FlightErrorZone1" to="FlightErrorZone1" method="_on_area_entered"]
+[connection signal="area_entered" from="HardwareErrorZone1" to="." method="_on_hardware_error_zone_1_area_entered"]
+[connection signal="area_entered" from="HardwareErrorZone2" to="." method="_on_hardware_error_zone_2_area_entered"]
+[connection signal="area_entered" from="CameraErrorZone1" to="." method="_on_camera_error_zone_1_area_entered"]
